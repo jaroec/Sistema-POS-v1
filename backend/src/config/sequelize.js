@@ -12,27 +12,25 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: 'postgres',
+    logging: false,
     pool: {
       max: 20,
       min: 0,
       acquire: 30000,
       idle: 10000
-    },
-    logging: false
+    }
   }
 );
 
-// Función para probar conexión
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Conexión a PostgreSQL con Sequelize exitosa');
+    console.log('✅ Conexión a PostgreSQL exitosa');
     return true;
   } catch (error) {
-    console.error('❌ Error al conectar con Sequelize:', error.message);
+    console.error('❌ Error:', error.message);
     return false;
   }
 };
 
-export { sequelize, testConnection };
-export default sequelize;
+export { sequelize as default, testConnection };
