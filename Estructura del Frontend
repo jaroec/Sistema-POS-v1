@@ -1,0 +1,67 @@
+frontend/
+│
+├── src/
+│   ├── api/
+│   │   ├── backendClient.js        ← Cliente REST que reemplaza a Base44
+│   │   └── endpoints.js            ← Rutas limpias por entidad
+│   │
+│   ├── context/
+│   │   ├── AuthContext.jsx         ← Manejo global de usuario/sesión
+│   │   └── UIContext.jsx           ← Sidebar, dark-mode, diálogos
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.js              ← Manejo login/me/logout
+│   │   ├── useFetch.js             ← Fetch genérico
+│   │   ├── useCRUD.js              ← list / get / create / update / delete
+│   │   └── useSales.js             ← Lógica central del POS
+│   │
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Layout.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   └── Header.jsx
+│   │   │
+│   │   ├── pos/
+│   │   │   ├── ProductSelector.jsx
+│   │   │   ├── CartItem.jsx
+│   │   │   └── SaleSummary.jsx
+│   │   │
+│   │   ├── dialogs/
+│   │   │   ├── CustomerDialog.jsx
+│   │   │   ├── ProductDialog.jsx
+│   │   │   ├── SaleDetailsDialog.jsx
+│   │   │   └── ConfirmDialog.jsx
+│   │   │
+│   │   └── shared/
+│   │       ├── Loader.jsx
+│   │       ├── EmptyState.jsx
+│   │       └── Pagination.jsx
+│   │
+│   ├── pages/
+│   │   ├── Login.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── POS.jsx
+│   │   ├── Sales.jsx
+│   │   ├── Products.jsx
+│   │   ├── Customers.jsx
+│   │   ├── PaymentAccounts.jsx
+│   │   └── Settings.jsx
+│   │
+│   ├── router/
+│   │   ├── AppRouter.jsx
+│   │   └── PrivateRoute.jsx
+│   │
+│   ├── utils/
+│   │   ├── format.js
+│   │   ├── validators.js
+│   │   └── storage.js
+│   │
+│   ├── index.css
+│   └── main.jsx
+│
+├── public/
+│   └── logo.png
+│
+├── .env
+├── package.json
+└── vite.config.js
