@@ -1,0 +1,174 @@
+const { app, BrowserWindow, Menu } = require('electron');
+const path = require('path');
+const { spawn } = require('child_process');
+const pgPath = path.join(__dirname, '..', 'postgres-portable');
+const dataPath = path.join(app.getPath('userData'), 'database');
+
+function startPostgres() {
+  // Iniciar PostgreSQL portable
+  const pgProcess = spawn(path.join(pgPath, 'bin', 'pg_ctl'), [
+    '-D', dataPath,
+    'start'
+  ]);
+  
+  return pgProcess;
+}
+
+async function checkPostgreSQL() {
+  const { exec } = require('child_process');
+  
+  return new Promise((resolve) => {
+    exec('psql --version', (error) => {
+      resolve(!error);
+    });
+  });
+}
+
+app.whenReady().then(async () => {
+  const hasPostgres = await checkPostgreSQL();
+  
+  if (!hasPostgres) {
+    dialog.showErrorBox(
+      'PostgreSQL no encontrado',
+      'Por favor instale PostgreSQL antes de usar esta aplicación.'
+    );
+    app.quit();
+    return;
+  }
+  
+  startBackend();
+  createWindow();
+});
+
+let mainWindow;
+let backendProcess;
+
+// Iniciar el backend
+function startBackend() {
+  const backendPath = path.join(__dirname, '..', 'backend', 'src', 'server.js');
+  
+  backendProcess = spawn('node', [backendPath], {
+    env: { ...process.env, PORT: 3000 }
+  });
+
+  backendProcess.stdout.on('data', (data) => {
+    console.log(`Backend: ${data}`);
+  });
+
+  backendProcess.stderr.on('data', (data) => {
+    console.error(`Backend Error: ${data}`);
+  });
+}
+
+// Crear ventana principal
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 1200,
+    minHeight: 700,
+    icon: path.join(__dirname, 'icon.png'),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    autoHideMenuBar: true, // Ocultar menú por defecto
+  });
+
+  // Cargar la aplicación
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.webContents.openDevTools(); // DevTools en desarrollo
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
+  }
+
+  // Menú personalizado
+  const menuTemplate = [
+    {
+      label: 'Archivo',
+      submenu: [
+        {
+          label: 'Recargar',
+          accelerator: 'CmdOrCtrl+R',
+          click: () => mainWindow.reload()
+        },
+        { type: 'separator' },
+        {
+          label: 'Salir',
+          accelerator: 'CmdOrCtrl+Q',
+          click: () => app.quit()
+        }
+      ]
+    },
+    {
+      label: 'Ver',
+      submenu: [
+        {
+          label: 'Pantalla Completa',
+          accelerator: 'F11',
+          click: () => {
+            mainWindow.setFullScreen(!mainWindow.isFullScreen());
+          }
+        },
+        {
+          label: 'Herramientas de Desarrollo',
+          accelerator: 'CmdOrCtrl+Shift+I',
+          click: () => mainWindow.webContents.toggleDevTools()
+        }
+      ]
+    },
+    {
+      label: 'Ayuda',
+      submenu: [
+        {
+          label: 'Acerca de',
+          click: () => {
+            // Aquí puedes abrir un diálogo con información
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(menuTemplate);
+  Menu.setApplicationMenu(menu);
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+// Cuando Electron esté listo
+app.whenReady().then(() => {
+  startBackend();
+  
+  // Esperar a que el backend esté listo
+  setTimeout(() => {
+    createWindow();
+  }, 2000);
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
+
+// Cerrar el backend cuando se cierre la app
+app.on('window-all-closed', () => {
+  if (backendProcess) {
+    backendProcess.kill();
+  }
+  
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('quit', () => {
+  if (backendProcess) {
+    backendProcess.kill();
+  }
+});
