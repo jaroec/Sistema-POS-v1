@@ -1,6 +1,7 @@
 {
   "name": "backend-pos",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend del Sistema POS",
   "main": "src/server.js",
   "scripts": {
@@ -14,7 +15,8 @@
     "express": "^5.1.0",
     "express-validator": "^7.3.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "sequelize": "^6.35.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
