@@ -1,0 +1,79 @@
+Backend/
+│── src/
+│   ├── config/
+│   │   ├── database.js 
+│   │   └── logger.js
+│   │
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   ├── roles.js
+│   │   └── errorHandler.js
+│   │
+│   ├── models/
+│   │   ├── users.model.js
+│   │   ├── products.model.js
+│   │   ├── customers.model.js
+│   │   ├── exchangeRates.model.js
+│   │   ├── paymentAccounts.model.js
+│   │   ├── sales.model.js
+│   │   └── payments.model.js
+│   │
+│   ├── controllers/
+│   │   ├── auth.controller.js  
+│   │   ├── users.controller.js   
+│   │   ├── products.controller.js   
+│   │   ├── customers.controller.js   
+│   │   ├── exchangeRates.controller.js   
+│   │   ├── paymentAccounts.controller.js   
+│   │   ├── sales.controller.js   
+│   │   └── payments.controller.js
+│   │
+│   ├── services/
+│   │   ├── auth.service.js
+│   │   ├── users.service.js
+│   │   ├── products.service.js
+│   │   ├── customers.service.js
+│   │   ├── exchangeRates.service.js
+│   │   ├── paymentAccounts.service.js
+│   │   ├── sales.service.js
+│   │   └── payments.service.js
+│   │
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── users.routes.js
+│   │   ├── products.routes.js
+│   │   ├── customers.routes.js
+│   │   ├── exchangeRates.routes.js
+│   │   ├── paymentAccounts.routes.js
+│   │   ├── sales.routes.js
+│   │   └── payments.routes.js
+│   │   └── index.js  
+│   │
+│   ├── utils/
+│   │   ├── jwt.js
+│   │   ├── bcrypt.js
+│   │   ├── date.js
+│   │   └── codes.js
+│   │
+│   │
+│   │── validations/
+│   │    ├── auth.validation.js
+│   │    ├── users.validation.js
+│   │    ├── products.validation.js
+│   │    ├── customers.validation.js
+│   │    ├── exchangeRates.validation.js
+│   │    ├── paymentAccounts.validation.js
+│   │    ├── sales.validation.js
+│   │   └── payments.validation.js
+│   │
+│   ├── server.js
+│   └── app.js
+│
+├── scripts/
+│   │   ├── seed-admin.js
+│   │   └── migrate.js
+│
+│
+├── .env 
+├── package.json 
+└── README.md 
