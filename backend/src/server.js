@@ -1,13 +1,15 @@
 // ============================================
-// ARCHIVO: backend/src/server.js
+// SERVIDOR PRINCIPAL - ES MODULES
 // ============================================
 
-// Cargar .env desde la carpeta raíz
-require('dotenv').config({ path: '../.env' });
+import dotenv from 'dotenv';
+dotenv.config();
 
-const express = require('express');
-const cors = require('cors');
-const { testConnection } = require('./config/database');
+import express from 'express';
+import cors from 'cors';
+import { testConnection } from './config/database.js';
+import routes from './routes/index.js';
+import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +18,6 @@ const PORT = process.env.PORT || 3000;
 // MIDDLEWARE
 // ============================================
 
-// CORS
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:4173'],
   credentials: true
@@ -25,7 +26,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logger
+// Logger simple
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
@@ -37,7 +38,7 @@ app.use((req, res, next) => {
 
 app.get('/', (req, res) => {
   res.json({
-    message: '✅ API Sistema POS funcionando correctamente',
+    message: '✅ API Sistema POS funcionando',
     version: '1.0.0',
     timestamp: new Date().toISOString()
   });
@@ -47,23 +48,23 @@ app.get('/health', async (req, res) => {
   const dbConnected = await testConnection();
   res.json({
     status: dbConnected ? 'healthy' : 'unhealthy',
-    database: dbConnected ? 'connected' : 'disconnected',
-    timestamp: new Date().toISOString()
+    database: dbConnected ? 'connected' : 'disconnected'
   });
 });
 
-app.use('/api', require('./routes'));
+// Montar rutas de la API
+app.use('/api', routes);
 
-// ============================================
-// MANEJO DE ERRORES
-// ============================================
-
+// Manejo de rutas no encontradas
 app.use((req, res) => {
   res.status(404).json({
     error: 'Ruta no encontrada',
     path: req.path
   });
 });
+
+// Manejo global de errores
+app.use(errorHandler);
 
 // ============================================
 // INICIAR SERVIDOR
@@ -75,27 +76,24 @@ const startServer = async () => {
 
     if (!dbConnected) {
       console.error('❌ No se pudo conectar a la base de datos');
-      console.error('   Verifica la configuración en el archivo .env');
       process.exit(1);
     }
 
     app.listen(PORT, () => {
       console.log('\n' + '='.repeat(50));
-      console.log('🚀 SERVIDOR INICIADO CORRECTAMENTE');
+      console.log('🚀 SERVIDOR INICIADO');
       console.log('='.repeat(50));
       console.log(`📡 Puerto: ${PORT}`);
       console.log(`🌍 URL: http://localhost:${PORT}`);
       console.log(`💾 Base de datos: ${process.env.DB_NAME}`);
-      console.log(`⚙️  Entorno: ${process.env.NODE_ENV}`);
       console.log('='.repeat(50) + '\n');
     });
   } catch (error) {
-    console.error('❌ Error al iniciar el servidor:', error);
+    console.error('❌ Error:', error);
     process.exit(1);
   }
 };
 
 startServer();
 
-module.exports = app;
-
+export default app;
