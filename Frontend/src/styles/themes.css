@@ -1,0 +1,15 @@
+@theme {
+  /* Brand colors */
+  --color-brand-50: #f3fbfb;
+  --color-brand-100: #e6f7f7;
+  --color-brand-300: #8ce0db;
+  --color-brand-500: #1fb6a9;
+  --color-brand-700: #158a75;
+
+  /* Background */
+  --color-bg: #0b1220;
+  --color-bg-panel: #0f1724;
+
+  /* Border radius */
+  --radius-xl: 1rem;
+}
