@@ -1,0 +1,106 @@
+import { Routes, Route } from "react-router-dom";
+import PrivateRoute from "./PrivateRoute";
+
+import LoginPage from "../pages/LoginPage";
+import DashboardPage from "../pages/DashboardPage";
+import PosPage from "../pages/PosPage";
+import ProductsPage from "../pages/ProductsPage";
+import CustomersPage from "../pages/CustomersPage";
+import SalesPage from "../pages/SalesPage";
+import InventoryPage from "../pages/InventoryPage";
+import KardexPage from "../pages/KardexPage";
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <DashboardPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/pos"
+        element={
+          <PrivateRoute>
+            <PosPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/productos"
+        element={
+          <PrivateRoute>
+            <ProductsPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route path="/products" element={<PrivateRoute><ProductsPage/></PrivateRoute>} />
+      <Route path="/products/create" element={<PrivateRoute><CreateProductPage/></PrivateRoute>} />
+      <Route path="/products/edit/:id" element={<PrivateRoute><EditProductPage/></PrivateRoute>} />
+      <Route path="/inventory" element={<InventoryPage />} />
+      <Route path="/inventory/kardex/:productId" element={<KardexPage />} />
+
+      <Route
+        path="/clientes"
+        element={
+          <PrivateRoute>
+            <CustomersPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/ventas"
+        element={
+          <PrivateRoute>
+            <SalesPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/pagos"
+        element={
+          <PrivateRoute>
+            <PaymentsPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/tasas"
+        element={
+          <PrivateRoute>
+            <RatesPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/usuarios"
+        element={
+          <PrivateRoute>
+            <UsersPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/inventario"
+        element={
+          <PrivateRoute>
+            <InventoryPage />
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
+}
