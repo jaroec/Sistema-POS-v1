@@ -1,60 +1,35 @@
 // src/config/database.js
-import pg from 'pg';
-const { Pool } = pg;
+// Backend/src/config/database.js
+import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+// Para obtener __dirname en módulos ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+// Cargar .env desde la raíz del proyecto
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+console.log('📍 Cargando .env desde:', path.join(__dirname, '../../.env'));
+console.log('DATABASE_URL disponible:', !!process.env.DATABASE_URL);
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('❌ DATABASE_URL no está definida en .env');
+}
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  protocol: 'postgres',
+  dialectOptions: {
+    ssl: process.env.NODE_ENV === 'production' ? {
+      require: true,
+      rejectUnauthorized: false
+    } : false,
+    useUTC: true,
+  },
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
 });
 
-// Evento cuando se conecta
-pool.on('connect', () => {
-  console.log('✅ Conectado a PostgreSQL');
-});
-
-// Evento de error
-pool.on('error', (err, client) => {
-  console.error('❌ Error inesperado en PostgreSQL:', err);
-  process.exit(-1);
-});
-
-// Función para probar la conexión
-const testConnection = async () => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    console.log('🔗 Conexión a BD exitosa:', result.rows[0].now);
-    return true;
-  } catch (error) {
-    console.error('❌ Error al conectar con la BD:', error.message);
-    return false;
-  }
-};
-
-// Función helper para consultas
-const query = (text, params) => pool.query(text, params);
-
-// Función helper para transacciones
-const getClient = () => pool.connect();
-
-export {
-  query,
-  getClient,
-  pool,
-  testConnection
-};
-
-export default {
-  query,
-  getClient,
-  pool,
-  testConnection
-};
+export default sequelize;
