@@ -1,10 +1,13 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 async function request(path, options = {}) {
+  const token = localStorage.getItem("token"); // ← Obtén el token
+  
   const config = {
     method: options.method || "GET",
     headers: {
       "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }), // ← AGREGAR ESTO
       ...(options.headers || {})
     },
     credentials: "include",
@@ -49,3 +52,4 @@ export const backend = {
   paymentAccounts: createEntity("paymentAccounts"),
   payments: createEntity("payments"),
 };
+
