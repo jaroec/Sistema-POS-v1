@@ -2,98 +2,66 @@
 // SERVIDOR PRINCIPAL - ES MODULES
 // ============================================
 
+// Backend/src/server.js
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Para obtener __dirname en módulos ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Cargar .env desde la raíz
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 import express from 'express';
 import cors from 'cors';
-import { testConnection } from './config/database.js';
-import routes from './routes/index.js';
-import errorHandler from './middleware/errorHandler.js';
+import sequelize from './config/database.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
-// ============================================
-// MIDDLEWARE
-// ============================================
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:4173'],
-  credentials: true
-}));
-
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Logger simple
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK' });
 });
 
-// ============================================
-// RUTAS
-// ============================================
+// Rutas
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/sales', salesRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/exchange-rates', exchangeRateRoutes);
+app.use('/api/users', usersRoutes);
 
-app.get('/', (req, res) => {
-  res.json({
-    message: '✅ API Sistema POS funcionando',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.get('/health', async (req, res) => {
-  const dbConnected = await testConnection();
-  res.json({
-    status: dbConnected ? 'healthy' : 'unhealthy',
-    database: dbConnected ? 'connected' : 'disconnected'
-  });
-});
-
-// Montar rutas de la API
-app.use('/api', routes);
-
-// Manejo de rutas no encontradas
-app.use((req, res) => {
-  res.status(404).json({
-    error: 'Ruta no encontrada',
-    path: req.path
-  });
-});
-
-// Manejo global de errores
-app.use(errorHandler);
-
-// ============================================
-// INICIAR SERVIDOR
-// ============================================
-
-const startServer = async () => {
-  try {
-    const dbConnected = await testConnection();
-
-    if (!dbConnected) {
-      console.error('❌ No se pudo conectar a la base de datos');
-      process.exit(1);
-    }
-
-    app.listen(PORT, () => {
-      console.log('\n' + '='.repeat(50));
-      console.log('🚀 SERVIDOR INICIADO');
-      console.log('='.repeat(50));
-      console.log(`📡 Puerto: ${PORT}`);
-      console.log(`🌍 URL: http://localhost:${PORT}`);
-      console.log(`💾 Base de datos: ${process.env.DB_NAME}`);
-      console.log('='.repeat(50) + '\n');
-    });
-  } catch (error) {
-    console.error('❌ Error:', error);
+// Sincronizar base de datos
+sequelize.sync({ alter: false })
+  .then(() => console.log('✅ Base de datos sincronizada'))
+  .catch(err => {
+    console.error('❌ Error al sincronizar BD:', err.message);
     process.exit(1);
-  }
-};
+  });
 
-startServer();
+// Conectar a la BD
+sequelize.authenticate()
+  .then(() => {
+    console.log('✅ Conectado a PostgreSQL');
+    
+    // Iniciar servidor
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+      console.log(`🧪 Test: http://localhost:${PORT}/api/health`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ Error al conectar con la BD:', err.message);
+    process.exit(1);
+  });
 
 export default app;
